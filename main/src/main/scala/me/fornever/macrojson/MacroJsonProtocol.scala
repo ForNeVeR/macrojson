@@ -14,7 +14,7 @@ object MacroJsonProtocol extends DefaultJsonProtocol {
         case map: JsObject =>
           map.getFields("type")(0) match {
             case JsString(typeName) =>
-              Parsers.parseMessage(typeName, map)
+              Parsers.parseMessage[Message](typeName, map)
           }
         case _ => throw new Exception("Error parsing " + value)
       }

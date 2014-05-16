@@ -6,19 +6,21 @@ import spray.json._
 
 object Parsers {
 
-  def impl(c: Context)(typeName: c.Expr[String], map: c.Expr[JsObject]): c.Expr[Message] = {
+  def impl[T: c.WeakTypeTag](c: Context)(typeName: c.Expr[String], map: c.Expr[JsObject]): c.Expr[T] = {
     import c.universe._
 
-    val types = Seq(typeOf[Message1], typeOf[Message2])
+    val symbol = weakTypeOf[T].typeSymbol.asInstanceOf[TypeSymbol]
+    val internal = symbol.asInstanceOf[scala.reflect.internal.Symbols#Symbol]
+    val types = (internal.sealedDescendants.map(_.asInstanceOf[TypeSymbol]) - symbol).map(_.toType)
     val clauses = types.map(t => {
       val name = t.typeSymbol.name.toString
       cq"$name => new $t()"
     })
 
     val tree = q"typeName match { case ..$clauses }"
-    c.Expr[Message](tree)
+    c.Expr[T](tree)
   }
 
-  def parseMessage(typeName: String, map: JsObject): Message = macro Parsers.impl
+  def parseMessage[T](typeName: String, map: JsObject): T = macro Parsers.impl[T]
 
 }
