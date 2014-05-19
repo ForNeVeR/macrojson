@@ -13,13 +13,14 @@ object Parsers {
     val internal = symbol.asInstanceOf[scala.reflect.internal.Symbols#Symbol]
     val types = (internal.sealedDescendants.map(_.asInstanceOf[TypeSymbol]) - symbol).map(_.toType)
 
-    val jsString = typeOf[JsString]
     val clauses = types.map(tpe => {
       val constructor = tpe.members.filter(_.isMethod).map(_.asInstanceOf[MethodSymbol]).filter(_.isConstructor).head
       val params = constructor.paramLists.head
       val args = params.map { param =>
         val parameterName = param.name.toString
-        q"$map.getFields($parameterName)(0).asInstanceOf[$jsString].value"
+        val parameterType = param.typeSignature
+
+        q"$map.getFields($parameterName)(0).convertTo[$parameterType]"
       }
 
       val name = tpe.typeSymbol.name.toString

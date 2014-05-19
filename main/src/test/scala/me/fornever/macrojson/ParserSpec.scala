@@ -4,23 +4,35 @@ import org.scalatest.{Matchers, FlatSpec}
 
 class ParserSpec extends FlatSpec with Matchers {
 
-  "A Parser" should "parse the Message1" in {
+  "A Parser" should "parse the SimpleMessage" in {
     val request =
       """{
-        |   "type": "Message1"
+        |   "type": "SimpleMessage"
         |}""".stripMargin
-    val message = Parser.parse(request).asInstanceOf[Message1]
-    assert(message != null)
+    val message = Parser.parse(request)
+    assert(message === SimpleMessage())
   }
 
-  "A Parser" should "parse the Message2" in {
+  "A Parser" should "parse the FieldMessage" in {
     val request =
       """{
-        |   "type": "Message2",
+        |   "type": "FieldMessage",
         |   "field": "FieldValue"
         |}""".stripMargin
-    val message = Parser.parse(request).asInstanceOf[Message2]
-    assert(message.field == "FieldValue")
+    val message = Parser.parse(request)
+    assert(message === FieldMessage("FieldValue"))
+  }
+
+  "A Parser" should "parse the NestedMessage" in {
+    val request =
+      """{
+        |   "type": "NestedMessage",
+        |   "nested": {
+        |     "type": "SimpleMessage"
+        |   }
+        |}""".stripMargin
+    val message = Parser.parse(request)
+    assert(message === NestedMessage(SimpleMessage()))
   }
 
 }
