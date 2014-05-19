@@ -10,16 +10,17 @@ class ParserSpec extends FlatSpec with Matchers {
         |   "type": "Message1"
         |}""".stripMargin
     val message = Parser.parse(request).asInstanceOf[Message1]
-	assert(message != null)
+    assert(message != null)
   }
 
   "A Parser" should "parse the Message2" in {
     val request =
       """{
-        |   "type": "Message2"
+        |   "type": "Message2",
+        |   "field": "FieldValue"
         |}""".stripMargin
     val message = Parser.parse(request).asInstanceOf[Message2]
-	assert(message != null)
+    assert(message.field == "FieldValue")
   }
 
 }
