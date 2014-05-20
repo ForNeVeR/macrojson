@@ -16,25 +16,21 @@ object Parsers {
     val clauses = types.map(tpe => {
       val constructor = tpe.members.filter(_.isMethod).map(_.asInstanceOf[MethodSymbol]).filter(_.isConstructor).head
       val constructorParameters = constructor.paramLists.head
-      val parameterNameStrings = constructorParameters.map(_.name.toString)
-      val parameterNames = parameterNameStrings.map(newTermName(_))
+      val parameterNames = constructorParameters.map(_.name)
+      val parameterNameStrings = parameterNames.map(_.toString)
+      val parameterBindings = parameterNames.map(name => pq"$name @ _")
 
-      val args = constructorParameters.zipWithIndex.map {
-        case (param, index) =>
-          val parameter = parameterNames(index)
-          val parameterType = param.typeSignature
+      val args = constructorParameters.map { param =>
+        val parameterName = TermName(param.name.toString)
+        val parameterType = param.typeSignature
 
-          q"$parameter.convertTo[$parameterType]"
-      }
-
-      val parameters = parameterNames.map { name =>
-        pq"$name @ _"
+        q"$parameterName.convertTo[$parameterType]"
       }
 
       val name = tpe.typeSymbol.name.toString
       cq"""$name =>
              $map.getFields(..$parameterNameStrings) match {
-               case Seq(..$parameters) => new $tpe(..$args)
+               case Seq(..$parameterBindings) => new $tpe(..$args)
              }"""
     })
 
