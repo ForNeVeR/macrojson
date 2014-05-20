@@ -9,9 +9,8 @@ object Parsers {
   def impl[T: c.WeakTypeTag](c: Context)(typeName: c.Expr[String], map: c.Expr[JsObject]): c.Expr[T] = {
     import c.universe._
 
-    val symbol = weakTypeOf[T].typeSymbol.asInstanceOf[TypeSymbol]
-    val internal = symbol.asInstanceOf[scala.reflect.internal.Symbols#Symbol]
-    val types = (internal.sealedDescendants.map(_.asInstanceOf[TypeSymbol]) - symbol).map(_.toType)
+    val cls = weakTypeOf[T].typeSymbol.asClass
+    val types = cls.knownDirectSubclasses.map(_.info)
 
     val clauses = types.map(tpe => {
       val constructor = tpe.members.filter(_.isMethod).map(_.asInstanceOf[MethodSymbol]).filter(_.isConstructor).head
@@ -27,10 +26,11 @@ object Parsers {
         q"$parameterName.convertTo[$parameterType]"
       }
 
-      val name = tpe.typeSymbol.name.toString
-      cq"""$name =>
+      val typeName = tpe.typeSymbol
+      val typeNameString = typeName.name.toString
+      cq"""$typeNameString =>
              $map.getFields(..$parameterNameStrings) match {
-               case Seq(..$parameterBindings) => new $tpe(..$args)
+               case Seq(..$parameterBindings) => new $typeName(..$args)
              }"""
     })
 
