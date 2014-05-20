@@ -2,6 +2,13 @@ package me.fornever.macrojson
 
 import spray.json._
 
+abstract sealed class Message()
+
+case class SimpleMessage() extends Message
+case class FieldMessage(field: String) extends Message
+case class NestedMessage(nested: Message) extends Message
+case class MultiMessage(field: Int, nested: Message) extends Message
+
 object MacroJsonProtocol extends DefaultJsonProtocol {
 
   implicit object MessageJsonFormat extends RootJsonFormat[Message] {
