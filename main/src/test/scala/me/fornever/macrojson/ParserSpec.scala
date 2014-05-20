@@ -13,7 +13,7 @@ class ParserSpec extends FlatSpec with Matchers {
     assert(message === SimpleMessage())
   }
 
-  "A Parser" should "parse the FieldMessage" in {
+  it should "parse the FieldMessage" in {
     val request =
       """{
         |   "type": "FieldMessage",
@@ -23,7 +23,7 @@ class ParserSpec extends FlatSpec with Matchers {
     assert(message === FieldMessage("FieldValue"))
   }
 
-  "A Parser" should "parse the NestedMessage" in {
+  it should "parse the NestedMessage" in {
     val request =
       """{
         |   "type": "NestedMessage",
