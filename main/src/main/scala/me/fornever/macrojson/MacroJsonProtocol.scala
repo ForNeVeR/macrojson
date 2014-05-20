@@ -30,4 +30,3 @@ object MacroJsonProtocol extends DefaultJsonProtocol {
   }
 
 }
-
