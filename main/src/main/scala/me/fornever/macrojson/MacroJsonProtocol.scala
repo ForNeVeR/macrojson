@@ -12,11 +12,11 @@ object MacroJsonProtocol extends DefaultJsonProtocol {
     def read(value: JsValue) = {
       value match {
         case map: JsObject =>
-          map.getFields("type")(0) match {
-            case JsString(typeName) =>
-              Parsers.parseMessage[Message](typeName, map)
+          map.getFields("type") match {
+            case Seq(JsString(typeName)) => Parsers.parseMessage[Message](typeName, map)
+            case _ => deserializationError("Invalid 'type' parameter")
           }
-        case _ => throw new Exception("Error parsing " + value)
+        case _ => deserializationError("Error parsing" + value)
       }
     }
 
