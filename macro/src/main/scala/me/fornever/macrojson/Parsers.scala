@@ -34,7 +34,7 @@ object Parsers {
              }"""
     })
 
-    val tree = q"typeName match { case ..$clauses }"
+    val tree = q"$typeName match { case ..$clauses }"
     c.Expr[T](tree)
   }
 
